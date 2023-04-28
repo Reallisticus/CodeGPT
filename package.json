@@ -1,0 +1,26 @@
+{
+  "name": "codegpt",
+  "version": "1.0.0",
+  "description": "Discord Code GPT based on ChatGPT",
+  "main": "index.js",
+  "scripts": {
+    "start": "node main.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@discordjs/builders": "^1.6.1",
+    "axios": "^1.4.0",
+    "cheerio": "^1.0.0-rc.12",
+    "discord.js": "^14.9.0",
+    "dotenv": "^16.0.3",
+    "node-fetch": "^3.3.1",
+    "openai": "^3.2.1",
+    "typescript": "^5.0.4",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.2"
+  }
+}
