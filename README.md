@@ -73,10 +73,6 @@ npm install
 - /search: Search the web for relevant information or resources
 - /whoami: Show quick info about the bot.
 
-## Contributing
-
-Currently not available, but feel free to fork the repository and make changes as you see fit.
-
 ## License
 
 This project is licensed under the MIT License.
