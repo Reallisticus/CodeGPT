@@ -39,12 +39,16 @@ npm install
 3. Create a .env file in the root directory of the project and add the required environment variables:
 
 ```
-DISCORD_TOKEN=<your-discord-bot-token>
-OPENAI_API_KEY=<your-openai-api-key>
-OPENAI_ORGANIZATION_ID=<your-openai-organization-id>
-OPENAI_MODEL_ENGINE=<your-openai-model-engine>
-GOOGLE_API_KEY=<your-google-api-key>
-GOOGLE_SEARCH_ENGINE_ID=<your-google-search-engine-id>
+* OPENAI_API_KEY: Your OpenAI API key
+* OPENAI_ORGANIZATION_ID: Your OpenAI organization ID (if applicable)
+* OPENAI_MODEL_ENGINE: The OpenAI model engine name (e.g., "gpt-4")
+* OPENAI_SYSTEM_MESSAGE: A system message that sets the context of the AI (example provided)
+* GOOGLE_API_KEY: Your Google API key (required for the /search command)
+* GOOGLE_SEARCH_ENGINE_ID: Your Google Search Engine ID (required for the /search command)
+* DISCORD_CLIENT_ID: Your Discord Client ID
+* DISCORD_GUILD_ID: Your Discord Guild ID
+* DISCORD_TOKEN: Your Discord bot token
+* FS_PROJECT_FOLDER_PATH: The path to the folder containing the code files (e.g., "C:\Users\username\Desktop\CodeGPT")
 ```
 
 4. Create a Discord Application, following the [Discord Developer Portal](https://discord.com/developers/applications)
