@@ -1,3 +1,5 @@
+// #TODO: Allow the bot to fix the code that it's provided by itself...
+
 // const { SlashCommandBuilder } = require('@discordjs/builders');
 // const fs = require('fs');
 // const path = require('path');

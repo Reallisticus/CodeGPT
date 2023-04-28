@@ -1,7 +1,5 @@
-import { GatewayIntentBits } from 'discord.js';
-
-const { Client, Intents, ActivityType, Message } = require('discord.js');
-const logging = require('./logger'); // Replace this with the path to your logger file
+const { Client, ActivityType, GatewayIntentBits } = require("discord.js");
+const logging = require("./logger"); // Replace this with the path to your logger file
 
 const intents = [
   GatewayIntentBits.Guilds,
@@ -17,13 +15,13 @@ class DiscordClient extends Client {
     this.added = false;
     this.activity = {
       type: ActivityType.WATCHING,
-      name: '/chat | /reset | /imagine',
+      name: "/chat | /reset | /imagine | /create | /files | /search",
     };
   }
 
   async onReady() {
     await this.waitUntilReady();
-    logging.info('Syncing');
+    logging.info("Syncing");
     if (!this.synced) {
       await this.tree.sync();
       this.synced = true;
@@ -44,7 +42,7 @@ class Sender {
       logging.info(`${userId} sent: ${send}, response: ${receive}`);
     } catch (error) {
       await interaction.followUp.send(
-        '> **Error: Something went wrong, please try again later!**'
+        "> **Error: Something went wrong, please try again later!**"
       );
       logging.error(
         `Error while sending: ${send} in chatgpt model, error: ${error}`
@@ -61,7 +59,7 @@ class Sender {
       logging.info(`${userId} sent: ${send}, response: ${receive}`);
     } catch (error) {
       await interaction.followUp.send(
-        '> **Error: Something went wrong, please try again later!**'
+        "> **Error: Something went wrong, please try again later!**"
       );
       logging.error(
         `Error while sending: ${send} in dalle model, error: ${error}`

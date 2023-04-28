@@ -47,54 +47,27 @@ GOOGLE_API_KEY=<your-google-api-key>
 GOOGLE_SEARCH_ENGINE_ID=<your-google-search-engine-id>
 ```
 
-Make sure to configure the Discord bot and Google Search Engine settings before running the script.
+4. Create a Discord Application, following the [Discord Developer Portal](https://discord.com/developers/applications)
+   &nbsp;
+5. Create a Google Developer Account, set up a Custom Search Engine and get the key for it. (If you do not want to do this, simply remove the "search" entry from the
+   array located in `utils/deployCommands @commandFolders` and run Step 6)
+   &nbsp;
+6. Run
 
-4. Compile TypeScript:
+   `ts-node utils\deployCommands.ts`
+   &nbsp;
 
-```bash
-npx tsc
-```
+7. Run
+   `ts-node main.ts`
 
-5. Run the bot:
+## Commands
 
-```bash
-node main.js
-```
-
-## Examples
-
-Here are some examples of how to interact with the bot using commands:
-
-- To initiate a chat with the bot:
-
-```
-/chat Hello, I need help with a JavaScript problem.
-```
-
-- To reset the conversation:
-
-```
-/reset
-```
-
-- To generate an image from a description (TODO: Currently not implemented):
-
-```
-/imagine A beautiful sunset over a beach with palm trees.
-```
-
-- To search the web for relevant information:
-
-```
-/search How to use WebSocket in Node.js?
-```
-
-- To use the "sfs" functionality to map the folder structure and inspect file contents:
-- "sfs" at the start will initiate the process
-
-```
-/chat sfs what is wrong with line 90 in main.js?
-```
+- /chat: Chat with the AI developer to get help or advice (If you drop a link, it'll web-scrape it, and provide an answer based on it, perfect for dropping updated docs)
+- /create: Create a personal channel for yourself, thus keeping your conversations private.
+- /files: Drop a .txt file with more than 2000/4000 symbols to bypass Discords character limit
+- /modify: #TODO: Directly modify the files of a project.
+- /search: Search the web for relevant information or resources
+- /whoami: Show quick info about the bot.
 
 ## Contributing
 
@@ -102,7 +75,11 @@ Currently not available, but feel free to fork the repository and make changes a
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License.
+
+## Authors
+
+- [@reallisticus](https://www.github.com/reallisticus)
 
 ```
 

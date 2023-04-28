@@ -1,6 +1,6 @@
-const axios = require('axios');
-const cheerio = require('cheerio');
-const logger = require('../logger');
+const axios = require("axios");
+const cheerio = require("cheerio");
+const logger = require("./logger");
 
 async function search(query: string): Promise<string[]> {
   const apiKey = process.env.GOOGLE_API_KEY;
@@ -27,11 +27,11 @@ async function getRelevantInfo(url: string, keyword: string): Promise<string> {
     const response = await axios.get(url);
     const $ = cheerio.load(response.data);
 
-    const bodyText = $('body').text(); // Get the entire text of the body
+    const bodyText = $("body").text(); // Get the entire text of the body
     const index = bodyText.toLowerCase().indexOf(keyword.toLowerCase()); // Find the index of the keyword (case-insensitive)
 
     if (index === -1) {
-      return 'Keyword not found in the text.';
+      return "Keyword not found in the text.";
     }
 
     const snippet = bodyText.slice(index, index + 2000); // Extract 2000 characters after the keyword
@@ -39,7 +39,7 @@ async function getRelevantInfo(url: string, keyword: string): Promise<string> {
   } catch (error) {
     console.error(`Error while scraping: ${(error as Error).message}`);
     logger.error(`Error while scraping: ${error}`);
-    return '';
+    return "";
   }
 }
 

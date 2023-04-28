@@ -1,8 +1,8 @@
-const BaseModelInterface = require('./interfaces/modelInterface');
-const openai = require('../openai');
+const BaseModelInterface = require("./interfaces/modelInterface");
+const openai = require("../utils/openai/openai");
 
 class OpenAIModel extends BaseModelInterface {
-  constructor(apiKey: string, modelEngine: string, imageSize = '512x512') {
+  constructor(apiKey: string, modelEngine: string, imageSize = "512x512") {
     super();
     openai.apiKey = apiKey;
     this.modelEngine = modelEngine;

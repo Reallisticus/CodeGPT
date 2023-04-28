@@ -1,22 +1,12 @@
-import { PermissionFlagsBits } from 'discord.js';
-
-const {
-  SlashCommandBuilder,
-  Permissions,
-  Constants,
-  ChannelType,
-} = require('discord.js');
-const { DiscordClient, Sender } = require('../../discordClient');
-
-const client = new DiscordClient();
+const { PermissionFlagsBits } = require("discord.js");
+const { SlashCommandBuilder, ChannelType } = require("discord.js");
+require("dotenv").config();
 
 const personalChannels = new Map<string, string>();
 
 async function createPersonalChannel(interaction: any) {
   const user = interaction.user;
   const channelName = `Private-${user.username}`;
-
-  console.log(interaction.guildId, user.id);
 
   try {
     const channel = await interaction.guild.channels.create({
@@ -32,7 +22,7 @@ async function createPersonalChannel(interaction: any) {
           allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect],
         },
         {
-          id: '1101368215415828480', // Grant permissions to the specified user/bot
+          id: process.env.DISCORD_BOT_ID, // Grant permissions to the specified user/bot
           allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect],
         },
       ],
@@ -49,8 +39,8 @@ async function createPersonalChannel(interaction: any) {
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('create')
-    .setDescription('Create your own personal channel'),
+    .setName("create")
+    .setDescription("Create your own personal channel"),
   async execute(interaction: any) {
     if (!interaction.isCommand()) return;
     await createPersonalChannel(interaction);

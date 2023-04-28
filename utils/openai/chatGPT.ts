@@ -1,7 +1,8 @@
-const { scraper } = require('./webScraper');
-const { containsURL, extractURLs } = require('./utils/isURI');
-const fs = require('fs');
-const path = require('path');
+const { scraper } = require("../webScraper");
+const { extractURLs } = require("../isURI");
+const fs = require("fs");
+const path = require("path");
+require("dotenv").config();
 
 interface ModelInterface {
   chatCompletion(messages: any[]): Promise<any>;
@@ -33,13 +34,13 @@ class ChatGPT {
     }
 
     const ignoreList = [
-      'node_modules',
-      '.env',
-      'package-lock.json',
-      '.git',
-      '.gitignore',
-      'README.md',
-      'logs',
+      "node_modules",
+      ".env",
+      "package-lock.json",
+      ".git",
+      ".gitignore",
+      "README.md",
+      "logs",
     ];
 
     try {
@@ -59,17 +60,17 @@ class ChatGPT {
               itemPath,
               depth + 1
             );
-            output += '\n';
+            output += "\n";
           }
         } else {
           output += `📄 ${item}\n`;
 
           // Set file size limit to prevent extremely long content display, e.g., 50 KB for plain text files
-          if (depth < 2 && fs.statSync(itemPath).size < 50 * 1024) {
-            const fileContent = fs.readFileSync(itemPath, 'utf-8');
+          if (depth < 2 && fs.statSync(itemPath).size < 250 * 1024) {
+            const fileContent = fs.readFileSync(itemPath, "utf-8");
             output += `---\nFile content (first 1000 characters):\n${fileContent.substring(
               0,
-              1000
+              2500
             )}\n---\n\n`;
           }
         }
@@ -87,7 +88,7 @@ class ChatGPT {
     url?: string
   ): Promise<string> {
     // If no URL is provided, use the default documentation URL
-    const documentationUrl = url || 'https://example.com/documentation';
+    const documentationUrl = url || "https://example.com/documentation";
 
     const scrapedContent = await scraper(documentationUrl);
     console.log(scrapedContent);
@@ -100,9 +101,9 @@ class ChatGPT {
     text: string,
     followUpMessage?: string
   ): Promise<string> {
-    this.memory.append(user_id, { role: 'user', content: text });
+    this.memory.append(user_id, { role: "user", content: text });
 
-    let documentationContent = '';
+    let documentationContent = "";
 
     const urls = extractURLs(text);
 
@@ -117,24 +118,24 @@ class ChatGPT {
     if (documentationContent) {
       // Add the scraped content as an assistant message
       this.memory.append(user_id, {
-        role: 'assistant',
+        role: "assistant",
         content: documentationContent,
       });
     }
 
-    if (text.toLowerCase().includes('show folder structure')) {
+    if (text.toLowerCase().includes("show folder structure")) {
       const folderStructureContent =
         await this.access_folder_structure_and_files(
-          'C:\\Users\\nickj.DC1\\Desktop\\CodeGPT'
+          process.env.FS_PROJECT_FOLDER_PATH!
         );
       this.memory.append(user_id, {
-        role: 'assistant',
+        role: "assistant",
         content: folderStructureContent,
       });
     }
 
     if (followUpMessage) {
-      this.memory.append(user_id, { role: 'user', content: followUpMessage });
+      this.memory.append(user_id, { role: "user", content: followUpMessage });
     }
 
     const response = await this.model.chatCompletion(this.memory.get(user_id));
@@ -149,6 +150,10 @@ class ChatGPT {
     this.memory.remove(user_id);
   }
 }
+
+/*
+# TODO: /imagine integration
+*/
 
 class DALLE {
   private model: ModelInterface;
