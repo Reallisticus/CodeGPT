@@ -8,7 +8,7 @@ CodeGPT is a Discord bot that utilizes OpenAI's GPT models to provide assistance
 - Visits websites to fetch relevant information
 - Provides recommendations for code snippets
 - Assists in debugging issues and finding solutions to problems
-- Maps the folder structure of a project and inspects file content
+- Maps the folder structure of a project, inspects file contents and provides responses for the given project.
 - Generates images from textual descriptions (TODO: Currently not implemented)
 
 ## Technologies Used
@@ -90,14 +90,15 @@ Here are some examples of how to interact with the bot using commands:
 ```
 
 - To use the "sfs" functionality to map the folder structure and inspect file contents:
+- "sfs" at the start will initiate the process
 
 ```
-/chat Map the folder structure of the project and show me the contents of the "README.md" file.
+/chat sfs what is wrong with line 90 in main.js?
 ```
 
 ## Contributing
 
-Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for details on our code of conduct and the process for submitting pull requests.
+Currently not available, but feel free to fork the repository and make changes as you see fit.
 
 ## License
 
