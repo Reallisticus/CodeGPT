@@ -6,6 +6,11 @@ const { OpenAIModel } = require("../../models/openaiModel");
 const { Memory } = require("../../models/memoryModel");
 const { splitResponse } = require("../../utils/helpers");
 
+import type { RequestInfo, RequestInit, Response } from "node-fetch";
+
+const fetch = (...args: [RequestInfo, RequestInit?]) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
+
 const models = new OpenAIModel(
   process.env.OPENAI_API,
   process.env.OPENAI_MODEL_ENGINE
@@ -46,8 +51,6 @@ module.exports = {
 
     await interaction.deferReply();
     try {
-      const { default: fetch } = await import("node-fetch");
-
       const fileText = await fetch(file.url).then((response: any) =>
         response.text()
       );

@@ -5,7 +5,8 @@ const { ChatGPT } = require("../../utils/openai/chatgpt");
 const { OpenAIModel } = require("../../models/openaiModel");
 const { Memory } = require("../../models/memoryModel");
 const { splitResponse } = require("../../utils/helpers");
-
+const path = require("path");
+const { logger } = require("../../utils/logger");
 const models = new OpenAIModel(
   process.env.OPENAI_API,
   process.env.OPENAI_MODEL_ENGINE
@@ -28,6 +29,8 @@ module.exports = {
     const userId = interaction.user.id;
     const message = interaction.options.getString("message");
 
+    console.log(userId);
+
     if (interaction.user === client.user) {
       return;
     }
@@ -46,13 +49,12 @@ module.exports = {
       for (const chunk of chunks) {
         await interaction.followUp({ content: chunk, ephemeral: true });
       }
-    } else {
-      const response = await chatgpt.get_response(userId, message);
-      const chunks = splitResponse(response);
+    }
+    const response = await chatgpt.get_response(userId, message);
+    const chunks = splitResponse(response);
 
-      for (const chunk of chunks) {
-        await interaction.followUp({ content: chunk, ephemeral: true });
-      }
+    for (const chunk of chunks) {
+      await interaction.followUp({ content: chunk, ephemeral: true });
     }
   },
 };
