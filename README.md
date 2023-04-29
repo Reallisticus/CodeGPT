@@ -1,3 +1,6 @@
+![image](https://user-images.githubusercontent.com/45203980/235289710-ef21c379-ae80-4652-97d9-9c8d6de428c4.png)
+
+
 # CodeGPT
 
 CodeGPT is a Discord bot that utilizes OpenAI's GPT models to provide assistance, advice, and feedback for developers in a wide range of programming topics. It can also search for relevant information from the internet, recommend suitable code snippets, help debug issues, and map the whole folder structure of a project to generate responses based on user queries.
