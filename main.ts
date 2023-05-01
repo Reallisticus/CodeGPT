@@ -3,7 +3,7 @@ import { Events, Interaction } from "discord.js";
 const { Collection } = require("discord.js");
 const { DiscordClient } = require("./utils/discordClient");
 const client = new DiscordClient();
-const { ChatGPT } = require("./utils/openai/chatgpt");
+const { ChatGPT } = require("./controllers/chatGPT");
 const { OpenAIModel } = require("./models/openaiModel");
 const { Memory } = require("./models/memoryModel");
 const { splitResponse } = require("./utils/helpers");

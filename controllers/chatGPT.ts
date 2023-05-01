@@ -1,9 +1,9 @@
-const { scraper } = require("../webScraper");
-const { extractURLs } = require("../isURI");
+const { scraper } = require("../utils/webScraper");
+const { extractURLs } = require("../utils/isURI");
 const fs = require("fs");
 const path = require("path");
-const { logger } = require("../logger");
-const { extractKeywords } = require("../helpers");
+const { logger } = require("../utils/logger");
+const { extractKeywords } = require("../utils/helpers");
 require("dotenv").config();
 
 interface ModelInterface {
@@ -26,8 +26,50 @@ class ChatGPT {
     this.memory = memory;
   }
 
+  async get_ai_response(
+    messages: any[]
+  ): Promise<{ role: string; content: string }> {
+    try {
+      const response = await this.model.chatCompletion(messages);
+      const role = response.data.choices[0].message.role;
+      const content = response.data.choices[0].message.content;
+      return { role, content };
+    } catch (e) {
+      console.log(e);
+      logger.error(
+        `[L152]: Error in ${path.resolve(__dirname)}:  ${(e as Error).message}`
+      );
+      return {
+        role: "assistant",
+        content: "Something went wrong. Please try again.",
+      };
+    }
+  }
+
+  async get_relevant_keywords_or_files(
+    query: string,
+    user_id: string,
+    keywords?: string[] // Add the keywords parameter
+  ): Promise<string[]> {
+    const prompt = keywords
+      ? `Given the following query: "${query}" and these keywords: "${keywords.join(
+          '", "'
+        )}", suggest relevant keywords, files or folders that might be useful to look into.`
+      : `Given the following query: "${query}", suggest relevant keywords, files or folders that might be useful to look into.`;
+
+    const responseObj = await this.get_ai_response(
+      this.memory.get(user_id).concat({ role: "user", content: prompt })
+    );
+
+    // Process the response to extract keywords or file/folder names
+    const extractedKeywords = extractKeywords(responseObj.content);
+
+    return extractedKeywords;
+  }
+
   // We're using keywords from the user message to fetch only relevant files/codeblocks from the folder structure and send that to the openAI API.
   // If we do not do this, and the project which gets associated is even a mid-sized one, the API will throw an error.
+
   async access_folder_structure_and_files(
     currentFolderPath: string,
     keywords: any,
@@ -91,13 +133,17 @@ class ChatGPT {
         } else {
           const fileContent = fs.readFileSync(itemPath, "utf-8");
           const fileRelevant =
-            keywords.fileNames.includes(item) ||
+            keywords.fileNames.some((filename: string) =>
+              item.toLowerCase().includes(filename.toLowerCase())
+            ) ||
             keywords.functionNames.some((fn: string) =>
               fileContent.includes(fn)
             ) ||
             keywords.variables.some((varName: string) =>
               fileContent.includes(varName)
             );
+
+          console.log(fileRelevant);
 
           if (fileRelevant) {
             let limitedContent = fileContent;
@@ -130,15 +176,15 @@ class ChatGPT {
           break;
         }
       }
-      return output;
     } catch (e) {
-      return {
+      output.children.push({
         type: "error",
         contents: `Error accessing folder ${currentFolderPath}: ${
           (e as Error).message
         }`,
-      };
+      });
     }
+    return output;
   }
 
   async get_documentation_content(
@@ -157,7 +203,8 @@ class ChatGPT {
   async get_response(
     user_id: string,
     text: string,
-    followUpMessage?: string
+    followUpMessage?: string,
+    userKeywords?: string[]
   ): Promise<string> {
     try {
       this.memory.append(user_id, { role: "user", content: text });
@@ -183,34 +230,49 @@ class ChatGPT {
       }
 
       // Extract keywords from the user's message
-      const keywords = extractKeywords(text);
+      // Extract keywords from the user's message
+      const extractedKeywords = extractKeywords(text);
 
-      if (text.toLowerCase().includes("show folder structure")) {
+      // Combine the userKeywords and extractedKeywords
+      const combinedKeywords = [...(userKeywords || []), ...extractedKeywords];
+
+      if (text.toLowerCase().includes("--sfs")) {
+        const suggestions = await this.get_relevant_keywords_or_files(
+          text,
+          user_id,
+          combinedKeywords
+        );
+
         const folderStructureContent =
           await this.access_folder_structure_and_files(
             process.env.FS_PROJECT_FOLDER_PATH!,
-            keywords
+            suggestions
           );
 
-        console.log(folderStructureContent);
-        this.memory.append(user_id, {
-          role: "user",
-          content: folderStructureContent,
-        });
+        console.log(folderStructureContent.children);
+
+        for (const fileObj of folderStructureContent.children) {
+          console.log(fileObj.contents.children);
+          if (fileObj.type === "file") {
+            this.memory.append(user_id, {
+              role: "user",
+              content: fileObj.contents,
+            });
+          }
+        }
       }
 
       if (followUpMessage) {
         this.memory.append(user_id, { role: "user", content: followUpMessage });
       }
 
-      const response = await this.model.chatCompletion(
-        this.memory.get(user_id)
-      );
+      const responseObj = await this.get_ai_response(this.memory.get(user_id));
 
-      const role = response.data.choices[0].message.role;
-      const content = response.data.choices[0].message.content;
-      this.memory.append(user_id, { role: role, content: content });
-      return content;
+      this.memory.append(user_id, {
+        role: responseObj.role,
+        content: responseObj.content,
+      });
+      return responseObj.content;
     } catch (e) {
       console.log(e);
       logger.error(
