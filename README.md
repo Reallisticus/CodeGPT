@@ -76,6 +76,28 @@ npm install
 - /search: Search the web for relevant information or resources
 - /whoami: Show quick info about the bot.
 
+## TODO:
+
+- Improve the SFS functionality.
+   - Finalize "smart traversal", which will only fetch files/folder/code which is relevant to the user prompt.
+   - User keywords, if the user writes an input and has something placed in double quotes, this should be taken as a keyword by the algorithm and it should search code/files relevant to those keywords.
+   - Currently, the project scope is being added by a static .env variable, this will be changed. We will allow the users to do two things:
+      - Link a project folder with a Discord command, which should be linked only for him? Need to figure out how to access fs on remote hosts with a Discord bot (?) [Big questionmark here]
+      - Allow users to link their github projects, this would make it easier, if the repo is private, use oauth to authenticate the user and thus be able to access the private repo. Will probably have to create a whole new functionality for this to work.
+ 
+- Modify functionality.
+   - Directly allow the bot to interact with the FS and make changes to the code of the project?
+      - For this to work, we have to first consider which method for accessing the project folder we will use [Github, local FS of user or we pull the projects to some virtual env and do the work there?
+      - We also want to implement some safeguards, we do not want the bot to implement breaking changes or something which doesn't work.
+         - So, the bot will have to build the project and create some sort of test for the functionality that it's implementing?
+         ....
+         
+- GPT Mode.
+   - Currently, we're only using the bot for coding, the system message which we provide at the start is designed for coding only, but we want to expand this to be honest, if we can pass market data to the bot, he can use the various indicators of which it is already aware and knows how to use, and provide us with various trading options for example? Still thinking about this...
+   
+- Imagine.
+   - We are of course also going to implement DALLE-2 to this whole thing, the foundation for it is set, we can use this in combination with ChatGPT to make it more powerful.
+
 ## License
 
 This project is licensed under the MIT License.
