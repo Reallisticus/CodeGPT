@@ -1,10 +1,10 @@
-const { scraper } = require("../utils/webScraper");
-const { extractURLs } = require("../utils/isURI");
-const fs = require("fs");
-const path = require("path");
-const { logger } = require("../utils/logger");
-const { extractKeywords } = require("../utils/helpers");
-require("dotenv").config();
+const { scraper } = require('../utils/webScraper');
+const { extractURLs } = require('../utils/isURI');
+const fs = require('fs');
+const path = require('path');
+const { logger } = require('../utils/logger');
+const { extractKeywords } = require('../utils/helpers');
+require('dotenv').config();
 
 interface ModelInterface {
   chatCompletion(messages: any[]): Promise<any>;
@@ -31,17 +31,26 @@ class ChatGPT {
   ): Promise<{ role: string; content: string }> {
     try {
       const response = await this.model.chatCompletion(messages);
+      logger.info(
+        `[ChatGPT|get_ai_response]: Prompt sent to OpenAI: ${JSON.stringify(
+          messages
+        )}`
+      );
       const role = response.data.choices[0].message.role;
       const content = response.data.choices[0].message.content;
+      logger.info(`[ChatGPT|get_ai_response]: Model response: ${content}`);
+
       return { role, content };
     } catch (e) {
       console.log(e);
       logger.error(
-        `[L152]: Error in ${path.resolve(__dirname)}:  ${(e as Error).message}`
+        `[ChatG{T|get_ai_response]: Error in ${path.resolve(__dirname)}: ${
+          (e as Error).message
+        }`
       );
       return {
-        role: "assistant",
-        content: "Something went wrong. Please try again.",
+        role: 'assistant',
+        content: 'Something went wrong. Please try again.',
       };
     }
   }
@@ -58,7 +67,7 @@ class ChatGPT {
       : `Given the following query: "${query}", suggest relevant keywords, files or folders that might be useful to look into.`;
 
     const responseObj = await this.get_ai_response(
-      this.memory.get(user_id).concat({ role: "user", content: prompt })
+      this.memory.get(user_id).concat({ role: 'user', content: prompt })
     );
 
     // Process the response to extract keywords or file/folder names
@@ -76,24 +85,27 @@ class ChatGPT {
     depth = 0,
     currentContentLength = 0
   ): Promise<any> {
-    if (depth > 3 || currentContentLength > 22000) {
+    if (depth > 3) {
+      logger.error(
+        `[ChatGPT|access_folder_structure_and_files]: Depth is ${depth} (max allowed: 3)  `
+      );
       return { error: "You've reached the maximum allowed content length." };
     }
 
     const ignoreList = [
-      "node_modules",
-      ".env",
-      "package-lock.json",
-      ".git",
-      ".gitignore",
-      "README.md",
-      "logs",
+      'node_modules',
+      '.env',
+      'package-lock.json',
+      '.git',
+      '.gitignore',
+      'README.md',
+      'logs',
     ];
 
     let output: {
       directory: string;
       children: Array<{
-        type: "directory" | "file" | "error";
+        type: 'directory' | 'file' | 'error';
         name?: string;
         contents?: any;
       }>;
@@ -123,7 +135,7 @@ class ChatGPT {
             );
 
             output.children.push({
-              type: "directory",
+              type: 'directory',
               name: item,
               contents: subdirOutput,
             });
@@ -131,7 +143,7 @@ class ChatGPT {
             currentContentLength += JSON.stringify(subdirOutput).length;
           }
         } else {
-          const fileContent = fs.readFileSync(itemPath, "utf-8");
+          const fileContent = fs.readFileSync(itemPath, 'utf-8');
           const fileRelevant =
             keywords.fileNames.some((filename: string) =>
               item.toLowerCase().includes(filename.toLowerCase())
@@ -142,8 +154,6 @@ class ChatGPT {
             keywords.variables.some((varName: string) =>
               fileContent.includes(varName)
             );
-
-          console.log(fileRelevant);
 
           if (fileRelevant) {
             let limitedContent = fileContent;
@@ -156,7 +166,7 @@ class ChatGPT {
             }
 
             output.children.push({
-              type: "file",
+              type: 'file',
               name: item,
               contents: limitedContent,
             });
@@ -168,20 +178,26 @@ class ChatGPT {
         }
 
         if (currentContentLength > 22000) {
+          logger.error(
+            `[ChatGPT|access_folder_structure_and_files]: Content Length is ${currentContentLength} (max allowed: 22000)  `
+          );
           output.children.push({
-            type: "error",
+            type: 'error',
             contents:
-              "Content length limit reached. Some content may be omitted.",
+              'Content length limit reached. Some content may be omitted.',
           });
           break;
         }
       }
     } catch (e) {
+      logger.error(
+        `[ChatGPT|access_folder_structure_and_files]: Error accessing folder ${currentFolderPath}:  ${
+          e as Error
+        }`
+      );
       output.children.push({
-        type: "error",
-        contents: `Error accessing folder ${currentFolderPath}: ${
-          (e as Error).message
-        }`,
+        type: 'error',
+        contents: `Error accessing folder ${currentFolderPath}: ${e as Error}`,
       });
     }
     return output;
@@ -192,10 +208,9 @@ class ChatGPT {
     url?: string
   ): Promise<string> {
     // If no URL is provided, use the default documentation URL
-    const documentationUrl = url || "https://example.com/documentation";
+    const documentationUrl = url || 'https://example.com/documentation';
 
     const scrapedContent = await scraper(documentationUrl);
-    console.log(scrapedContent);
 
     return scrapedContent;
   }
@@ -207,9 +222,9 @@ class ChatGPT {
     userKeywords?: string[]
   ): Promise<string> {
     try {
-      this.memory.append(user_id, { role: "user", content: text });
+      this.memory.append(user_id, { role: 'user', content: text });
 
-      let documentationContent = "";
+      let documentationContent = '';
 
       const urls = extractURLs(text);
 
@@ -224,7 +239,7 @@ class ChatGPT {
       if (documentationContent) {
         // Add the scraped content as an assistant message
         this.memory.append(user_id, {
-          role: "assistant",
+          role: 'assistant',
           content: documentationContent,
         });
       }
@@ -234,9 +249,11 @@ class ChatGPT {
       const extractedKeywords = extractKeywords(text);
 
       // Combine the userKeywords and extractedKeywords
-      const combinedKeywords = [...(userKeywords || []), ...extractedKeywords];
+      const combinedKeywords = [...(userKeywords || []), extractedKeywords];
 
-      if (text.toLowerCase().includes("--sfs")) {
+      console.log(combinedKeywords);
+
+      if (text.toLowerCase().includes('--sfs')) {
         const suggestions = await this.get_relevant_keywords_or_files(
           text,
           user_id,
@@ -249,13 +266,11 @@ class ChatGPT {
             suggestions
           );
 
-        console.log(folderStructureContent.children);
-
         for (const fileObj of folderStructureContent.children) {
           console.log(fileObj.contents.children);
-          if (fileObj.type === "file") {
+          if (fileObj.type === 'file') {
             this.memory.append(user_id, {
-              role: "user",
+              role: 'user',
               content: fileObj.contents,
             });
           }
@@ -263,7 +278,8 @@ class ChatGPT {
       }
 
       if (followUpMessage) {
-        this.memory.append(user_id, { role: "user", content: followUpMessage });
+        this.memory.append(user_id, { role: 'user', content: followUpMessage });
+        logger.info(`[ChatGPT]: Follow-up message: ${followUpMessage}`);
       }
 
       const responseObj = await this.get_ai_response(this.memory.get(user_id));
@@ -272,13 +288,16 @@ class ChatGPT {
         role: responseObj.role,
         content: responseObj.content,
       });
+      logger.info(
+        `[ChatGPT|get_response]: Final response: ${responseObj.content}`
+      );
       return responseObj.content;
     } catch (e) {
       console.log(e);
       logger.error(
-        `[L152]: Error in ${path.resolve(__dirname)}:  ${e as Error}`
+        `[ChatGPT|get_response]: Error in get_response: ${e as Error}`
       );
-      return "Something went wrong. Please try again.";
+      return 'Something went wrong. Please try again.';
     }
   }
 
